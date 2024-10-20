@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy import stats
+import seaborn as sns
 
 
 def analyze_sequence(sequence):
@@ -42,6 +43,30 @@ def analyze_sequence(sequence):
             )
         else:
             print("Последовательность не является периодической.")
+
+
+def analyze_sequences(sequence1, sequence2):
+    # Преобразуем последовательности в массивы NumPy
+    sequence1 = np.array(sequence1)
+    sequence2 = np.array(sequence2)
+
+    # Построение графика
+    plt.figure(figsize=(10, 6))
+    plt.plot(sequence1, marker="o", linestyle="-", color="b", label="Исходная выборка")
+    plt.plot(
+        sequence2,
+        marker="x",
+        linestyle="--",
+        color="r",
+        label="Сгенерировванная выборка",
+    )
+    plt.title("График значений двух последовательностей")
+    plt.xlabel("Индекс")
+    plt.ylabel("Значение")
+    plt.grid()
+    plt.axhline(0, color="black", linewidth=0.5, linestyle="--")  # Линия y=0
+    plt.legend()  # Добавление легенды для различения массивов
+    plt.show()
 
 
 def autocorrelation_analysis(sequence, max_lag=10):
@@ -96,6 +121,51 @@ def plot_frequency_histogram(data, bins=20):
     plt.xlabel("Значение")
     plt.ylabel("Частота")
     plt.grid(axis="y", alpha=0.75)  # Сетка для лучшего восприятия
+    plt.show()
+
+
+def plot_frequency_histograms(data1, data2, bins=20):
+    plt.figure(figsize=(10, 6))  # Размер графика
+
+    # Построение двух гистограмм на одном графике
+    plt.hist(
+        data1,
+        bins=bins,
+        edgecolor="black",
+        alpha=0.7,
+        label="Исходная выборка",
+        color="blue",
+    )
+    plt.hist(
+        data2,
+        bins=bins,
+        edgecolor="black",
+        alpha=0.5,
+        label="Сгенерированная выборка",
+        color="red",
+    )
+
+    plt.title("Гистограмма распределения частот для двух массивов")
+    plt.xlabel("Значение")
+    plt.ylabel("Частота")
+    plt.grid(axis="y", alpha=0.75)  # Сетка для лучшего восприятия
+    plt.legend()  # Легенда для различения массивов
+    plt.show()
+
+
+def densitys(data1, data2):
+    plt.figure(figsize=(10, 6))
+    sns.kdeplot(data1, color="blue", label="Исходная", fill=True, alpha=0.5)
+    sns.kdeplot(data2, color="orange", label="Сгенерированная", fill=True, alpha=0.5)
+
+    # Добавление элементов графика
+    plt.title("График плотности вероятностей для двух выборок")
+    plt.xlabel("Значение")
+    plt.ylabel("Плотность вероятности")
+    plt.legend()
+    plt.grid()
+
+    # Отображение графика
     plt.show()
 
 

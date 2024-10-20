@@ -1,7 +1,36 @@
-from calculating import *
+import numpy as np
+import scipy.stats as stats
+import random
+from scipy.stats import expon
 from graph import *
 
-data = [
+
+def calculate_statistics(data2):
+    n = len(data2)
+    mean = np.mean(data2)
+    variance = np.var(data2, ddof=1)
+    std_dev = np.std(data2)
+    coef_variation = (std_dev / mean) * 100
+    conf_90 = (1 - 0.9) * (std_dev / np.sqrt(n))
+    conf_95 = (1 - 0.95) * (std_dev / np.sqrt(n))
+    conf_99 = (1 - 0.99) * (std_dev / np.sqrt(n))
+
+    return {
+        "mean": mean,
+        "variance": variance,
+        "std_dev": std_dev,
+        "coef_variation": coef_variation,
+        "conf_90": conf_90,
+        "conf_95": conf_95,
+        "conf_99": conf_99,
+    }
+
+
+def relative_deviation(estimate, reference):
+    return (abs(estimate - reference) / reference) * 100
+
+
+numbers = [
     170.024,
     79.539,
     130.762,
@@ -305,29 +334,111 @@ data = [
 ]
 
 
-def main():
-    ME = Mathematical_expectation(data)
-    print(f"Математическое ожидание: {ME}")
+# def generation_data():
 
-    dispersion = Dispersion(data)
-    print(f"Дисперсия: {dispersion}")
-
-    std_deviation = Standard_deviation(dispersion)
-    print(f"Среднеквадратическое отклонение: {std_deviation}")
-
-    cv = Coefficient_of_variation(std_deviation, dispersion)
-    print(f"Коэффициент вариации: {cv}%")
-
-    Confidence_interval(data, std_deviation, ME, 0.9)
-    Confidence_interval(data, std_deviation, ME, 0.95)
-    Confidence_interval(data, std_deviation, ME, 0.99)
-
-    Relative_deviation(data)
-    analyze_sequence(data)
-    autocorrelation_analysis(data)
-    plot_frequency_histogram(data)
-    approximate_distribution(data)
+#     a1 = 150
+#     a2 = 40
+#     q1 = 0.04
+#     q2 = 0.96
+#     generator2 = expon.rvs(scale=a1, loc=0, size=300)
+#     generator1 = expon.rvs(scale=a2, loc=0, size=300)
+#     result = []
+#     for i in range(1, 301):
+#         number = random.random()
+#         idx = random.randint(0, 299)
+#         if number <= q1:
+#             result.append(generator1[idx])
+#         else:
+#             result.append(generator2[idx])
+#     # for i in result:
+#     #     print(i)
+#     return result
 
 
-if __name__ == "__main__":
-    main()
+def generate_erlang_sequence(size=300):
+    """
+        Генерирует случайную последовательность из заданного
+    количества значений в соответствии с распределением Эрланга k-го
+    порядка.
+        :param k: Коэффициент формы (целое число)
+        :param scale: Масштабный параметр (темп для лямбда)
+        :param size: Количество генерируемых случайных значений
+        :return: Массив случайных чисел в соответствии с
+    распределением Эрланга
+    """
+    # Параметры gamma распределения: shape = k, scale = 1/lambda
+    return np.random.gamma(shape=3, scale=56.52, size=size)
+
+
+sorted_numbers = sorted(numbers)
+
+
+# Подвыборки
+samples = {
+    10: numbers[:10],
+    20: numbers[:20],
+    50: numbers[:50],
+    100: numbers[:100],
+    200: numbers[:200],
+    300: numbers[:300],
+}
+
+
+
+# Эталонная выборка для 300 элементов
+reference_stats = calculate_statistics(samples[300])
+
+# Результаты
+for n, sample in samples.items():
+    stats_sample = calculate_statistics(sample)
+    rel_dev_mean = relative_deviation(stats_sample["mean"], reference_stats["mean"])
+
+    print(f"\nСтатистика для {n} элементов:")
+    print(f"Математическое ожидание: {stats_sample['mean']:.3f}")
+    print(f"Дисперсия: {stats_sample['variance']:.3f}")
+    print(f"Среднеквадратическое отклонение: {stats_sample['std_dev']:.3f}")
+    print(f"Коэффициент вариации: {stats_sample['coef_variation']:.3f}%")
+    print(f"Доверительный интервал 90%: ({stats_sample['conf_90']:.3f})")
+    print(f"Доверительный интервал 95%: ({stats_sample['conf_95']:.3f})")
+    print(f"Доверительный интервал 99%: ({stats_sample['conf_99']:.3f})")
+    print(f"Относительное отклонение математического ожидания: {rel_dev_mean:.3f}%")
+
+new_data = generate_erlang_sequence()
+
+analyze_sequence(numbers)
+analyze_sequence(new_data)
+
+plot_frequency_histogram(numbers)
+plot_frequency_histogram(new_data)
+
+samples_generated = {
+    10: new_data[:10],
+    20: new_data[:20],
+    50: new_data[:50],
+    100: new_data[:100],
+    200: new_data[:200],
+    300: new_data[:300],
+}
+
+generated_reference_stats = calculate_statistics(new_data)
+
+print(f"\nСтатистика для сгенерерованных данных\n{"-"*40}")
+for n, sample in samples_generated.items():
+    stats_sample = calculate_statistics(sample)
+    rel_dev_mean = relative_deviation(stats_sample["mean"], generated_reference_stats["mean"])
+
+    print(f"\nСтатистика для {n} элементов:")
+    print(f"Математическое ожидание: {stats_sample['mean']:.3f}")
+    print(f"Дисперсия: {stats_sample['variance']:.3f}")
+    print(f"Среднеквадратическое отклонение: {stats_sample['std_dev']:.3f}")
+    print(f"Коэффициент вариации: {stats_sample['coef_variation']:.3f}%")
+    print(f"Доверительный интервал 90%: ({stats_sample['conf_90']:.3f})")
+    print(f"Доверительный интервал 95%: ({stats_sample['conf_95']:.3f})")
+    print(f"Доверительный интервал 99%: ({stats_sample['conf_99']:.3f})")
+    print(f"Относительное отклонение математического ожидания: {rel_dev_mean:.3f}%")
+
+autocorrelation_analysis(new_data)
+
+analyze_sequences(numbers, new_data)
+plot_frequency_histograms(numbers, new_data)
+densitys(numbers, new_data)
